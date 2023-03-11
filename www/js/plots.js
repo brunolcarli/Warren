@@ -5,8 +5,8 @@ function reset_canvas(chart_id, div_id){
         'canvas'
     );
     canvas.setAttribute('id', chart_id);
-    canvas.setAttribute('width', '680');
-    canvas.setAttribute('height', '420');
+    canvas.setAttribute('width', '360');
+    canvas.setAttribute('height', '450');
     document.getElementById(div_id).appendChild(canvas);
 
     return document.getElementById(chart_id).getContext('2d');
@@ -61,7 +61,8 @@ function plot_usdbrl_price(query_filter){
 
         for (i in dataset){
             prices.push(dataset[i]['price']);
-            dates.push(dataset[i]['datetimeReference']);
+            var dt = dataset[i]['datetimeReference'];
+            dates.push(dt.slice(0, dt.indexOf('T')));
         }
 
         const data = {
@@ -80,7 +81,16 @@ function plot_usdbrl_price(query_filter){
             type: 'line',
             data: data,
             options: {
-                responsive: false
+                responsive: false,
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            // autoSkip: false,
+                            maxRotation: 0,
+                            minRotation: 0
+                        }
+                    }]
+                }
             }
         });
     return chart;
@@ -95,7 +105,8 @@ function plot_usdbrl_diff(query_filter){
         const dates = [];
 
         for (i in dataset['usdBrl']){
-            dates.push(dataset['usdBrl'][i]['datetimeReference']);
+            var dt = dataset['usdBrl'][i]['datetimeReference'];
+            dates.push(dt.slice(0, dt.indexOf('T')));
         }
 
         const data = {
@@ -129,7 +140,8 @@ function plot_usdbrl_rolling(query_filter){
         const dates = [];
 
         for (i in dataset['usdBrl']){
-            dates.push(dataset['usdBrl'][i]['datetimeReference']);
+            var dt = dataset['usdBrl'][i]['datetimeReference'];
+            dates.push(dt.slice(0, dt.indexOf('T')));
         }
 
         const data = {
@@ -206,41 +218,6 @@ function plot_usdbrl_hour_var(query_filter){
             datasets: [
                 {
                     label: 'Variância',
-                    data: values,
-                    fill: false,
-                    borderColor: 'rgb(175, 92, 99)',
-                    tension: 0.5
-                }
-            ]
-        };
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: data,
-            options: {
-                responsive: false
-            }
-        });
-    return chart;
-    });
-}
-
-
-
-function plot_usdbrl_rolling(query_filter){
-    return query_usdbrl_rolling(query_filter).then(dataset => {
-        const ctx = reset_canvas('DynamicChart', 'dynamic_chart');
-        let values = dataset['usdbrlStatistics']['rolling'];
-        const dates = [];
-
-        for (i in dataset['usdBrl']){
-            dates.push(dataset['usdBrl'][i]['datetimeReference']);
-        }
-
-        const data = {
-            labels: dates,
-            datasets: [
-                {
-                    label: 'Média Móvel',
                     data: values,
                     fill: false,
                     borderColor: 'rgb(175, 92, 99)',
